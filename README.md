@@ -94,7 +94,7 @@ Upon startup, the console displays:
 
 ## 💡 Tips for iPhone Media Playback on Windows
 
-- **High-Bitrate 4K / Dolby Vision Videos**: iPhone 15 and newer record in 10-bit HEVC Dolby Vision. For smooth playback on Windows, use **VLC Media Player**.
+- **High-Bitrate 4K / HDR Videos**: Modern iPhones record high-resolution media in 10-bit HEVC / HDR formats. For optimal playback on Windows, use **VLC Media Player** or any media player with HEVC support.
 - **100% Uncompressed Video**: For massive 4K/60fps video clips, save the clip to the iPhone **Files** app first (`Share ➔ Save to Files`), then choose **"Browse Files"** in the web portal to bypass iOS Safari's default web-compression.
 
 ---
