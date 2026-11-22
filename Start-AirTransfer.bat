@@ -1,7 +1,7 @@
 @echo off
 title AirTransfer - iPhone to Windows Wi-Fi Transfer
 chcp 65001 >nul
-cd /d "C:\Users\aquib\.gemini\antigravity\scratch\ios_drop"
+cd /d "%~dp0"
 cls
 echo ========================================================
 echo   AirTransfer - Wireless File Sharing

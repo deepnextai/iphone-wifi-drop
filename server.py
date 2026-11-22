@@ -16,7 +16,7 @@ import aiofiles
 import qrcode
 
 PORT = 5321
-UPLOAD_DIR = Path(r"C:\Users\aquib\Downloads\iPhone_Transfers")
+UPLOAD_DIR = Path.home() / "Downloads" / "iPhone_Transfers"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 def get_lan_ip() -> str:

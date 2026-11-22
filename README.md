@@ -70,7 +70,7 @@ python server.py
 ```
 
 Upon startup, the console displays:
-- Active LAN IP and port (e.g. `http://192.168.1.8:5321`)
+- Active LAN IP and port (e.g. `http://<your-local-ip>:5321`)
 - An ASCII QR code in the terminal
 - Automatically launches your browser to the local connection page
 
