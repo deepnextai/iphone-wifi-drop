@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>AirTransfer - iPhone ⇄ Laptop</title>
+  <style>
+    :root {
+      --primary: #0071e3;
+      --primary-hover: #0077ed;
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      --card-bg: rgba(255, 255, 255, 0.08);
+      --card-border: rgba(255, 255, 255, 0.14);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --radius-lg: 22px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: env(safe-area-inset-top, 20px) 16px env(safe-area-inset-bottom, 20px);
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Top App Bar */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 4px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #0071e3, #6366f1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(0, 113, 227, 0.4);
+    }
+
+    .brand-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: white;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 5px 10px;
+      border-radius: 20px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Navigation Tabs */
+    .tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Glass Cards */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Drop Zone / Action Buttons */
+    .upload-zone {
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-md);
+      padding: 32px 16px;
+      text-align: center;
+      transition: all 0.25s ease;
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .upload-zone.dragover {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+      transform: scale(1.01);
+    }
+
+    .upload-icon-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(0, 113, 227, 0.2), rgba(99, 102, 241, 0.2));
+      border: 1px solid rgba(0, 113, 227, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .upload-icon-circle svg {
+      width: 32px;
+      height: 32px;
+      fill: #38bdf8;
+    }
+
+    .zone-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .zone-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      max-width: 280px;
+      line-height: 1.4;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0071e3 0%, #4338ca 100%);
+      color: white;
+      box-shadow: 0 4px 18px rgba(0, 113, 227, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-folder {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      margin-top: 10px;
+    }
+
+    .btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    /* Upload Progress Box */
+    .progress-box {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: var(--radius-md);
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: none;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .progress-stat {
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #0071e3, #38bdf8);
+      border-radius: 8px;
+      transition: width 0.15s ease;
+    }
+
+    .file-queue {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .queue-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+    }
+
+    .queue-name {
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .queue-status {
+      font-weight: 600;
+      color: #38bdf8;
+    }
+
+    /* Files List Tab */
+    .files-tab-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .files-count {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .refresh-btn {
+      background: transparent;
+      border: none;
+      color: #38bdf8;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .files-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 440px;
+      overflow-y: auto;
+    }
+
+    .file-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      transition: background 0.2s;
+    }
+
+    .file-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .file-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(0, 113, 227, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .file-badge svg {
+      width: 20px;
+      height: 20px;
+      fill: #38bdf8;
+    }
+
+    .file-details {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .file-title {
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #f1f5f9;
+    }
+
+    .file-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .download-icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .download-icon-btn:hover {
+      background: #0071e3;
+    }
+
+    .download-icon-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* QR / Connection Tab */
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      padding: 10px 0;
+    }
+
+    .qr-box {
+      background: white;
+      padding: 14px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      display: inline-block;
+    }
+
+    .qr-box img {
+      width: 200px;
+      height: 200px;
+      display: block;
+    }
+
+    .qr-url-pill {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-family: monospace;
+      font-size: 14px;
+      color: #38bdf8;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Alert Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        </div>
+        <div class="brand-title">AirTransfer</div>
+      </div>
+      <div class="status-badge">
+        <div class="status-dot"></div>
+        <span id="networkStatus">Wi-Fi Online</span>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tabUploadBtn" onclick="switchTab('upload')">
+        <svg style="width:16px;height:16px;fill:currentColor" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+        Send to Laptop
+      </button>
+      <button class="tab-btn" id="tabFilesBtn" onclick="switchTab('files')">
+        <svg style="width:16px;height:16px;fill:currentColor" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+        Files on Laptop
+      </button>
+      <button class="tab-btn" id="tabQRBtn" onclick="switchTab('qr')">
+        <svg style="width:16px;height:16px;fill:currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3zm2 2v4h4V5zm8-2h8v8h-8zm2 2v4h4V5zM3 13h8v8H3zm2 2v4h4v-4zm13-2h3v2h-3zm-5 0h3v2h-3zm2 2h3v2h-3zm-2 2h3v2h-3zm5 0h3v4h-3zm-2 2h2v2h-2zm-3 0h2v2h-2z"/></svg>
+        QR & Link
+      </button>
+    </div>
+
+    <!-- TAB 1: UPLOAD -->
+    <div id="tabUpload" class="card">
+      <div class="upload-zone" id="dropZone">
+        <div class="upload-icon-circle">
+          <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        </div>
+        <div>
+          <div class="zone-title">Send to Your Laptop</div>
+          <div class="zone-sub">Photos, full-length 4K videos, documents — transferred at high speed over local Wi-Fi.</div>
+        </div>
+
+        <div class="action-buttons">
+          <!-- Button 1: Photos & Videos -->
+          <button class="btn btn-primary" onclick="triggerPhotosInput()">
+            <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            Photos & Videos
+          </button>
+          
+          <!-- Button 2: Browse Files -->
+          <button class="btn btn-secondary" onclick="triggerFilesInput()">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            Browse Files
+          </button>
+        </div>
+
+        <!-- Hidden File Inputs -->
+        <input type="file" id="photoInput" multiple accept="image/*,video/*" style="display:none" onchange="handleFileSelect(this.files)">
+        <input type="file" id="generalFileInput" multiple accept="*/*" style="display:none" onchange="handleFileSelect(this.files)">
+      </div>
+
+      <!-- Live Progress Section -->
+      <div class="progress-box" id="progressBox">
+        <div class="progress-header">
+          <span id="progressLabel">Uploading...</span>
+          <span class="progress-stat" id="progressPercent">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:var(--text-muted)">
+          <span id="progressSpeed">Speed: -- MB/s</span>
+          <span id="progressSize">0 / 0 MB</span>
+        </div>
+        <div class="file-queue" id="fileQueue"></div>
+      </div>
+
+      <!-- Laptop Shortcut: Open Folder -->
+      <button class="btn btn-folder" onclick="openLaptopFolder()">
+        <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+        Open Folder on Laptop
+      </button>
+    </div>
+
+    <!-- TAB 2: FILES ON LAPTOP -->
+    <div id="tabFiles" class="card hidden">
+      <div class="files-tab-header">
+        <div>
+          <h3 style="font-size:16px; font-weight:700;">Transferred Files</h3>
+          <span class="files-count" id="filesCountHeader">Loading files...</span>
+        </div>
+        <button class="refresh-btn" onclick="loadFiles()">
+          <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          Refresh
+        </button>
+      </div>
+
+      <div class="files-list" id="filesList">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- TAB 3: QR CODE & CONNECTION INFO -->
+    <div id="tabQR" class="card hidden">
+      <div class="qr-container">
+        <h3 style="font-size:18px; font-weight:700;">Connect from iPhone</h3>
+        <p style="font-size:13px; color:var(--text-muted); max-width:300px;">
+          Open your iPhone's <b>Camera</b> and point it at this QR code to start transferring files.
+        </p>
+
+        <div class="qr-box">
+          <img id="qrImg" src="/api/qr" alt="Scan QR Code to Connect">
+        </div>
+
+        <div class="qr-url-pill" onclick="copyUrl()">
+          <span id="serverUrlText">http://...</span>
+          <svg style="width:16px;height:16px;fill:currentColor" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        </div>
+
+        <p style="font-size:12px; color:#64748b;">
+          💡 Both devices must be on the same Wi-Fi network.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">File uploaded successfully!</div>
+
+  <script>
+    let currentServerUrl = "";
+
+    // Fetch initial server info
+    async function initInfo() {
+      try {
+        const res = await fetch('/api/info');
+        const data = await res.json();
+        currentServerUrl = data.url;
+        document.getElementById('serverUrlText').textContent = data.url;
+      } catch (err) {
+        console.error("Could not fetch server info", err);
+      }
+    }
+    initInfo();
+
+    // Tab switching
+    function switchTab(tab) {
+      document.getElementById('tabUpload').classList.add('hidden');
+      document.getElementById('tabFiles').classList.add('hidden');
+      document.getElementById('tabQR').classList.add('hidden');
+
+      document.getElementById('tabUploadBtn').classList.remove('active');
+      document.getElementById('tabFilesBtn').classList.remove('active');
+      document.getElementById('tabQRBtn').classList.remove('active');
+
+      if (tab === 'upload') {
+        document.getElementById('tabUpload').classList.remove('hidden');
+        document.getElementById('tabUploadBtn').classList.add('active');
+      } else if (tab === 'files') {
+        document.getElementById('tabFiles').classList.remove('hidden');
+        document.getElementById('tabFilesBtn').classList.add('active');
+        loadFiles();
+      } else if (tab === 'qr') {
+        document.getElementById('tabQR').classList.remove('hidden');
+        document.getElementById('tabQRBtn').classList.add('active');
+      }
+    }
+
+    function triggerPhotosInput() {
+      document.getElementById('photoInput').click();
+    }
+
+    function triggerFilesInput() {
+      document.getElementById('generalFileInput').click();
+    }
+
+    // Drag and Drop
+    const dropZone = document.getElementById('dropZone');
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length > 0) {
+        handleFileSelect(files);
+      }
+    });
+
+    // Handle File Uploads with Live Progress
+    function handleFileSelect(files) {
+      if (!files || files.length === 0) return;
+
+      const progressBox = document.getElementById('progressBox');
+      const progressBar = document.getElementById('progressBar');
+      const progressPercent = document.getElementById('progressPercent');
+      const progressLabel = document.getElementById('progressLabel');
+      const progressSpeed = document.getElementById('progressSpeed');
+      const progressSize = document.getElementById('progressSize');
+      const fileQueue = document.getElementById('fileQueue');
+
+      progressBox.style.display = 'block';
+      progressBar.style.width = '0%';
+      progressPercent.textContent = '0%';
+      progressLabel.textContent = `Uploading ${files.length} file(s)...`;
+      fileQueue.innerHTML = '';
+
+      let totalBytes = 0;
+      for (let i = 0; i < files.length; i++) {
+        totalBytes += files[i].size;
+        const item = document.createElement('div');
+        item.className = 'queue-item';
+        item.innerHTML = `
+          <span class="queue-name">${escapeHtml(files[i].name)}</span>
+          <span class="queue-status" id="q-${i}">Queued</span>
+        `;
+        fileQueue.appendChild(item);
+      }
+
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+      }
+
+      const xhr = new XMLHttpRequest();
+      const startTime = Date.now();
+
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          progressBar.style.width = percent + '%';
+          progressPercent.textContent = percent + '%';
+
+          const elapsedSec = (Date.now() - startTime) / 1000;
+          if (elapsedSec > 0.5) {
+            const speedMBps = ((e.loaded / (1024 * 1024)) / elapsedSec).toFixed(1);
+            progressSpeed.textContent = `Speed: ${speedMBps} MB/s`;
+          }
+
+          progressSize.textContent = `${formatBytes(e.loaded)} / ${formatBytes(e.total)}`;
+        }
+      });
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          progressBar.style.width = '100%';
+          progressPercent.textContent = '100%';
+          progressLabel.textContent = '🎉 Transfer Complete!';
+          
+          for (let i = 0; i < files.length; i++) {
+            const statusEl = document.getElementById(`q-${i}`);
+            if (statusEl) {
+              statusEl.textContent = '✓ Saved';
+              statusEl.style.color = '#10b981';
+            }
+          }
+
+          showToast(`${files.length} file(s) saved successfully!`);
+
+          if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+          }
+
+          // Reset inputs
+          document.getElementById('photoInput').value = '';
+          document.getElementById('generalFileInput').value = '';
+        } else {
+          progressLabel.textContent = '❌ Upload failed. Please retry.';
+          showToast('Error uploading files');
+        }
+      };
+
+      xhr.onerror = function() {
+        progressLabel.textContent = '❌ Network connection error.';
+        showToast('Connection error');
+      };
+
+      xhr.open('POST', '/api/upload', true);
+      xhr.send(formData);
+    }
+
+    // Load Files List
+    async function loadFiles() {
+      const listEl = document.getElementById('filesList');
+      const countEl = document.getElementById('filesCountHeader');
+      try {
+        const res = await fetch('/api/files');
+        const data = await res.json();
+        
+        countEl.textContent = `${data.count} file(s) in Laptop folder`;
+        listEl.innerHTML = '';
+
+        if (data.files.length === 0) {
+          listEl.innerHTML = `
+            <div style="text-align:center; padding:32px 10px; color:var(--text-muted); font-size:13px;">
+              No files received yet.<br>Send photos or videos from above to see them here!
+            </div>
+          `;
+          return;
+        }
+
+        data.files.forEach(file => {
+          const card = document.createElement('div');
+          card.className = 'file-card';
+          card.innerHTML = `
+            <div class="file-info">
+              <div class="file-badge">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+              </div>
+              <div class="file-details">
+                <span class="file-title" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
+                <span class="file-meta">${formatBytes(file.size)} • ${timeAgo(file.modified)}</span>
+              </div>
+            </div>
+            <a href="${file.url}" download="${escapeHtml(file.name)}" class="download-icon-btn" title="Download to this device">
+              <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+            </a>
+          `;
+          listEl.appendChild(card);
+        });
+      } catch (err) {
+        listEl.innerHTML = `<div style="color:#ef4444;text-align:center;padding:20px;">Failed to load files</div>`;
+      }
+    }
+
+    // Open Folder on Laptop
+    async function openLaptopFolder() {
+      try {
+        const res = await fetch('/api/open-folder', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Folder opened on computer');
+        } else {
+          showToast('Location: Downloads\\iPhone_Transfers');
+        }
+      } catch (err) {
+        showToast('Location: Downloads\\iPhone_Transfers');
+      }
+    }
+
+    // Copy URL
+    function copyUrl() {
+      if (currentServerUrl) {
+        navigator.clipboard.writeText(currentServerUrl).then(() => {
+          showToast('Link copied to clipboard');
+        });
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function timeAgo(timestamp) {
+      const now = Date.now() / 1000;
+      const diff = Math.floor(now - timestamp);
+      if (diff < 60) return 'Just now';
+      if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+      return `${Math.floor(diff / 86400)}d ago`;
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
