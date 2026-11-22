@@ -7,11 +7,21 @@
 ## 🌟 Key Highlights
 
 - 📱 **Zero App on iPhone**: Connects directly through Apple Safari via a single QR code scan.
+- 🔒 **100% Offline & Private**: Works completely on your local network. Your data never leaves your devices or goes to external servers.
 - 🚀 **Full Local Network Speed**: Uses your home Wi-Fi router bandwidth (25–50+ MB/s) without consuming internet data.
 - 🎥 **Original Resolution**: Preserves 100% full-resolution photos (`.HEIC` / `.JPG`) and high-bitrate 4K HDR videos (`.MOV`).
 - 🔄 **Bi-directional Sharing**: Send media from iPhone to PC, or browse and download PC files directly to your iPhone.
 - 📈 **Real-Time Transfer Metrics**: Live upload progress bar with transfer rate (MB/s) and byte counters.
 - 🖵 **One-Click Windows Launcher**: Pre-configured desktop launcher with automatic LAN IP detection and terminal QR code.
+
+---
+
+## 🔒 Security & Complete Privacy
+
+- **Strictly Local Network (Offline)**: All data travels directly between your iPhone and PC across your local Wi-Fi router. Internet access is not even required.
+- **Zero Third-Party Cloud**: No external servers, no cloud storage, and no middleman. Your personal photos, videos, and files never leave your physical devices.
+- **Zero Analytics & Telemetry**: No tracking scripts, external CDN calls, or user logging. Everything runs standalone on your machine.
+- **Direct Local Storage**: Files are saved directly to your local PC storage (`Downloads/iPhone_Transfers`) without temporary cloud caching.
 
 ---
 
